@@ -6,18 +6,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.test.bankapp.NotEnoughFundsException;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Client {
     private static final Logger log = LogManager.getLogger(Client.class);
     private String name;
-    private List<Account> accounts = new ArrayList<Account>();
+    private Set<Account> accounts = new HashSet<Account>();
     private Account activeAccount;
     private float initialOverdraft;
     private Gender gender;
     private String email;
     private String phone;
+    private String city;
 
     private final static int INITIAL_OVERDRTAFT = 300;
     public final static String CLIENT_CHECKING_ACCOUNT_TYPE = "checking";
@@ -99,6 +102,14 @@ public class Client {
         this.phone = phone;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public void deposit(float x) {
         if (activeAccount != null) {
             activeAccount.deposit(x);
@@ -157,42 +168,45 @@ public class Client {
         return newAccout;
     }
 
-    public List<Account> getAccounts() {
+    public Set<Account> getAccounts() {
         return accounts;
     }
 
     public float getBalance() {
-        Account tmpAccount;
         float result = 0.f;
-        for (int i = 0; i < accounts.size(); i++) {
-            tmpAccount = accounts.get(i);
+
+        for (Account tmpAccount : accounts) {
             if (tmpAccount != null) {
                 result = result + tmpAccount.getBalance();
             }
         }
         return result;
     }
-    public void  printReport() {
+
+    public void printReport() {
         System.out.println("  Client name       : " + getClientSalutation());
-        System.out.println("  Client geder      : " + (getGender() != null?getGender().gender: ""));
+        System.out.println("  Client geder      : " + (getGender() != null ? getGender().gender : ""));
         System.out.println("  Client phone      : " + getPhone());
         System.out.println("  Client email      : " + getEmail());
         System.out.format("  Client overdraft  : %.2f\n", getInitialOverdraft());
         System.out.format("  Client balance    : %.2f\n", getBalance());
+        System.out.println("  Client city       : " + getCity());
         System.out.println("  Active account    :");
         getActiveAccount().printReport();
-        List<Account> accounts = getAccounts();
+        Set<Account> accounts = getAccounts();
         System.out.println("  Client accounts information  (accounts count " + accounts.size() + ") :");
-        for (int j = 1; j <= accounts.size(); j++) {
-            //System.out.println("--------------------------------------------------------------");
+        int j = 1;
+        for (Account account : accounts) {
             System.out.println("Account # [" + j + "]");
-            accounts.get(j - 1).printReport();
+            account.printReport();
+            j++;
             System.out.println("--------------------------------------------------------------");
         }
     }
+
     public String getClientSalutation() {
         if (gender == null) return name;
-        return gender.gender +". "+  name;
+        return gender.gender + ". " + name;
     }
 
     @Override
@@ -206,11 +220,13 @@ public class Client {
         if (name != null ? !name.equals(client.name) : client.name != null) return false;
         if (phone != null ? !phone.equals(client.phone) : client.phone != null) return false;
         if (email != null ? !email.equals(client.email) : client.email != null) return false;
-        if (accounts != null ? !accounts.equals(client.accounts) : client.accounts != null) return false;
+        if (city != null ? !city.equals(client.city) : client.city != null) return false;
         if (activeAccount != null ? !activeAccount.equals(client.activeAccount) : client.activeAccount != null)
             return false;
 
-        return gender == client.gender;
+        if (gender.gender != null ? !gender.gender.equals(client.gender.gender) : client.gender.gender != null) return false;
+        if (accounts != null ? !Arrays.equals(accounts.toArray(), client.accounts.toArray()): client.accounts != null) return false;
+        return true;
 
     }
 
@@ -219,6 +235,7 @@ public class Client {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
         result = 31 * result + (accounts != null ? accounts.hashCode() : 0);
         result = 31 * result + (accounts != null ? accounts.hashCode() : 0);
         result = 31 * result + (activeAccount != null ? activeAccount.hashCode() : 0);
@@ -230,19 +247,23 @@ public class Client {
     @Override
     public String toString() {
         StringBuilder accountData = new StringBuilder();
-        accountData.append("Accounts count: "+(accounts != null? accounts.size():0) + "{");
+        accountData.append("Accounts count: " + (accounts != null ? accounts.size() : 0) + "{");
+        int i = 0;
+        for (Account account : accounts) {
 
-        for(int i=0; accounts != null  && i <accounts.size();i++) {
-            if (i!=0) {
+            if (i != 0) {
                 accountData.append(", ");
             }
-            accountData.append("acc["+i+"]={"+accounts.get(i)+"}");
-        };
+            accountData.append("acc[" + i + "]={" + account + "}");
+            i++;
+        }
+        ;
         accountData.append("}");
         return "Client{" +
                 "name='" + name + '\'' +
                 ", phone=" + phone +
                 ", email=" + email +
+                ", city=" + city +
                 ", accounts=" + accountData.toString() +
                 ", activeAccount=" + activeAccount +
                 ", initialOverdraft=" + initialOverdraft +

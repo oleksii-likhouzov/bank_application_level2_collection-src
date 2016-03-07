@@ -34,7 +34,7 @@ public class FindClientCommand implements Command{
             throw new RuntimeException(e);
         }
         BankService bankService = new BankServiceImpl();
-        Client tmpClient = bankService.findClientByName(BankCommander.currentBank, clientName) ;
+        Client tmpClient = bankService.getClient(BankCommander.currentBank, clientName);
         if (tmpClient== null) {
             throw new RuntimeException("Client not found by name!");
         }

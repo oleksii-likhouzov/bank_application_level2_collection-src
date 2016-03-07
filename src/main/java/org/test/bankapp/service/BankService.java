@@ -15,4 +15,5 @@ public interface BankService {
     void addAccount(Client client, Account account);
     void setActiveAccount(Client client, Account account);
     Client findClientByName(Bank bank, String clientName);
+    Client getClient(Bank bank, String clientName);
 }

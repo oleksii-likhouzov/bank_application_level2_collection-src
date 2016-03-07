@@ -7,6 +7,7 @@ import org.test.bankapp.model.Client;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class BankServiceImpl implements BankService {
 
@@ -17,7 +18,7 @@ public class BankServiceImpl implements BankService {
 
     public void removeClient(Bank bank, Client client) {
 
-        List<Client> clients = bank.getClients();
+        Set<Client> clients = bank.getClients();
         Iterator iter = bank.getClients().iterator();
         while (iter.hasNext()) {
             Client tempClient = (Client) iter.next();
@@ -37,13 +38,15 @@ public class BankServiceImpl implements BankService {
     }
 
     public Client findClientByName(Bank bank, String clientName) {
-
-        List<Client> clients = bank.getClients();
-        for (int i = 0; clients !=null &&  i < clients.size(); i++) {
-            if (clientName.equals(clients.get(i).getName())) {
-                return clients.get(i);
+        for(Client client:bank.getClients()) {
+            if (clientName.equals(client.getName())) {
+                return client;
             }
         }
         return null;
+    }
+
+    public  Client getClient(Bank bank, String clientName) {
+        return bank.getClientCache().get(clientName);
     }
 }

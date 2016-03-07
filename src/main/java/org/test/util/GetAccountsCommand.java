@@ -1,5 +1,6 @@
 package org.test.util;
 
+import org.test.bankapp.model.Account;
 import org.test.bankapp.model.Client;
 
 public class GetAccountsCommand implements Command {
@@ -16,10 +17,11 @@ public class GetAccountsCommand implements Command {
             currentClient.getActiveAccount().printReport();
         }
         System.out.println("Account list:");
-        for (int i = 0; currentClient.getAccounts() != null &&
-                i < currentClient.getAccounts().size(); i++) {
+        int i=0;
+        for (Account account:currentClient.getAccounts()) {
             System.out.println("Account[" + i + "]:");
-            currentClient.getAccounts().get(i).printReport();
+            account.printReport();
+            i++;
         }
     }
 

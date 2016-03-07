@@ -7,9 +7,13 @@ import org.apache.logging.log4j.Logger;
 import org.test.bankapp.model.*;
 import org.test.bankapp.service.BankService;
 import org.test.bankapp.service.BankServiceImpl;
+import org.test.util.BankCommander;
 
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class BankApplication {
     private static final Logger log = LogManager.getLogger(BankApplication.class);
@@ -41,6 +45,8 @@ public class BankApplication {
     }
 
     public void initialize() {
+        BankService bankService = new BankServiceImpl();
+        // findClientByName
         bank = new Bank();
         addClient("First Client", Gender.FEMALE);
         addClient("Second Client", 100, Gender.FEMALE);
@@ -48,9 +54,13 @@ public class BankApplication {
         addClient("Third Client", 1, Gender.MALE);
         addClient("For delete", 200, Gender.FEMALE);
         addClient("Five Client", 78, Gender.MALE);
-        List<Client> clients = bank.getClients();
-        Client tmpClient = clients.get(2);
-        BankService bankService = new BankServiceImpl();
+        Set<Client> clients = bank.getClients();
+        Client tmpClient =  bankService.findClientByName(bank, "Second Client");
+        tmpClient.setCity("Monreal");
+
+
+        tmpClient =  bankService.findClientByName(bank, "Third Client");
+        tmpClient.setCity("Monreal");
         bankService.addAccount(tmpClient, tmpClient.createAccount(Client.CLIENT_SAVING_ACCOUNT_TYPE));
         bankService.addAccount(tmpClient, tmpClient.createAccount(Client.CLIENT_CHECKING_ACCOUNT_TYPE));
 
@@ -58,10 +68,10 @@ public class BankApplication {
         bankService.addAccount(tmpClient, tempAccount);
 
         bankService.setActiveAccount(tmpClient, tempAccount);
-        tmpClient = clients.get(3);
+        tmpClient =  bankService.findClientByName(bank, "For delete");
         bankService.removeClient(bank, tmpClient);
         for (Client client : clients) {
-            List<Account> accounts = client.getAccounts();
+            Set<Account> accounts = client.getAccounts();
             for (Account account : accounts) {
                 account.deposit(((int) (Math.random() * 100 * 100)) / 100.f);
             }
@@ -103,9 +113,8 @@ public class BankApplication {
     // оторый изменяет значение баланса (методы deposit() и withdraw()) для некоторых счетов клиентов банка.
     public void modifyBank() {
         if (bank != null) {
-            List<Client> clients = bank.getClients();
-            for (int i = 1; clients != null && i <= clients.size(); i++) {
-                Client client = clients.get(i - 1);
+            Set <Client> clients = bank.getClients();
+            for (Client client:clients) {
                 Account clientActiveAccount = client.getActiveAccount();
                 float clientBalance = clientActiveAccount.getBalance();
                 if (clientBalance > 0) {
@@ -134,11 +143,19 @@ public class BankApplication {
         }
     }
 
-    public static void main(String[] argv) {
-        BankApplication bankApplication = new BankApplication();
-        bankApplication.initialize();
-        bankApplication.printBankReport();
-        bankApplication.modifyBank();
-        bankApplication.printBankReport();
+    public static void main(String[] argv) throws IOException {
+
+
+        if (Arrays.asList(argv).contains("-report")) {
+            System.out.println("Demo mode:");
+            BankApplication bankApplication = new BankApplication();
+            bankApplication.initialize();
+            bankApplication.printBankReport();
+            bankApplication.modifyBank();
+            bankApplication.printBankReport();
+        } else {
+            BankCommander.runCommander();
+        }
+
     }
 }
